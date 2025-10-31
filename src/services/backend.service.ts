@@ -37,7 +37,7 @@ export class BackendService {
     const res = await fetch(url.toString(), {
       method: "GET",
       headers: this.buildHeaders(),
-      credentials: "include", // si manejas sesiones o cookies
+      //credentials: "include", // si manejas sesiones o cookies
     });
 
     if (!res.ok) throw new Error(`GET error: ${res.statusText}`);

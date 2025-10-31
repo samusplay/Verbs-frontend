@@ -1,0 +1,1 @@
+//va manejar el puntaje y recibe la logica 
