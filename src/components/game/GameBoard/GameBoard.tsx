@@ -49,14 +49,12 @@ export default function GameBoard({
 
       {/* Tablero de cartas */}
       <div
-        className={`
-          grid gap-3
-          ${difficulty === "easy" ? "grid-cols-3" : ""}
-          ${difficulty === "medium" ? "grid-cols-4" : ""}
-          ${difficulty === "hard" ? "grid-cols-5" : ""}
-          max-w-5xl
-        `}
-      >
+  className={`
+    grid gap-4 justify-center
+    grid-cols-[repeat(auto-fit,minmax(100px,1fr))] 
+    w-full max-w-6xl mx-auto px-4
+  `}
+>
         {deck.map((card) => (
           <Card
             key={card.id}
