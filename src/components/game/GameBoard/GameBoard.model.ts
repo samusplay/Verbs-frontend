@@ -4,25 +4,26 @@ import type { Card, Verb, VerbForm } from "./GameBoard.types";
 
  // Funcion para crear el mazo de cartas
 
-export function buildDeck(verbs: Verb[]): Card[] {
+export function buildDeck(verbs: Verb[], limit = 10): Card[] {
+  const count = Math.min(limit, verbs.length);          // evita pedir más de los que hay
+  const selectedVerbs = shuffle(verbs).slice(0, count); // toma 'count' verbos aleatorios
+
   const cards: Card[] = [];
-
-  verbs.forEach((verb) => {
+  selectedVerbs.forEach((verb) => {
     const forms: VerbForm[] = ["infinitive", "past_simple", "past_participle"];
-
     forms.forEach((form) => {
       cards.push({
-        id: `${verb.infinitive}-${form}`, // identificador único
-        pairId: verb.infinitive,          // todas las formas comparten este ID
-        label: verb[form],                // texto visible en la carta
-        formType: form,                   // tipo de forma verbal
+        id: `${verb.infinitive}-${form}`,
+        pairId: verb.infinitive,
+        label: verb[form],
+        formType: form,
         isMatched: false,
         isRevealed: false,
       });
     });
   });
 
-  return shuffle(cards); // devolvemos el mazo mezclado
+  return shuffle(cards);
 }
 
 //algoritmo para mezclar las cartas fisher-yates

@@ -20,7 +20,16 @@ export default function GameBoard({
   mode = "match",
   difficulty = "medium",
 }: GameBoardProps) {
-  const { deck, score, moves, phase, selectCard, resetGame } = useMatchGame(verbs);
+     // 🔹 mapa simple: ajusta a gusto
+  const limitByDifficulty = {
+    easy: 6,
+    medium: 10,
+    hard: 15,
+  } as const;
+
+  const limit = limitByDifficulty[difficulty] ?? 10;
+
+  const { deck, score, moves, phase, selectCard, resetGame } = useMatchGame(verbs,limit);
 
   // 📦 Si aún no hay cartas cargadas (por ejemplo, la API todavía responde)
   if (!deck || deck.length === 0) {

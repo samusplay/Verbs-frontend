@@ -14,7 +14,7 @@ import type { Card, GamePhase, Verb } from "./GameBoard.types";
  * - Controla la selección de cartas y determina aciertos/fallos
  * - Detecta cuándo se termina la partida
  */
-export function useMatchGame(verbs: Verb[]) {
+export function useMatchGame(verbs: Verb[],limit = 10) {
   // -----------------------------
   // Estado principal del juego
   // -----------------------------
@@ -29,12 +29,12 @@ export function useMatchGame(verbs: Verb[]) {
   // -----------------------------------------------------
   useEffect(() => {
     if (!verbs || verbs.length === 0) return; // evita inicializar si aún no hay datos
-    setDeck(buildDeck(verbs));                // genera las cartas a partir de los verbos
+    setDeck(buildDeck(verbs,limit));                // genera las cartas a partir de los verbos
     setScore(0);
     setMoves(0);
     setSelectedCards([]);
     setPhase("running");                      // comienza el juego
-  }, [verbs]);
+  }, [verbs,limit]);
 
   // -----------------------------------------------------
   //  Saber si todas las cartas ya fueron emparejadas
