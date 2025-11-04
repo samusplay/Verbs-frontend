@@ -3,7 +3,7 @@
 //Manejamos estado y comportamiento
 
 import { useEffect, useMemo, useState } from "react";
-import { buildDeck, calculateScore, isMatch } from "./GameBoard.model";
+import { buildDeck, calculateScore } from "./GameBoard.model";
 import type { Card, GamePhase, Verb } from "./GameBoard.types";
 
 /**
@@ -55,69 +55,57 @@ export function useMatchGame(verbs: Verb[],limit = 10) {
   //  Lógica de selección de cartas
   // -----------------------------------------------------
   function selectCard(cardId: string) {
-    // Si el juego está bloqueado o terminado, no hacer nada
-    if (phase !== "running") return;
+  if (phase !== "running") return;
 
-    // Encontramos la carta seleccionada
-    const card = deck.find((c) => c.id === cardId);
-    if (!card || card.isMatched || card.isRevealed) return; // ignorar si ya está revelada o acertada
+  const card = deck.find((c) => c.id === cardId);
+  if (!card || card.isMatched || card.isRevealed) return;
 
-    //  Caso 1: primera carta seleccionada
-    if (selectedCards.length === 0) {
-      // revelamos la carta visualmente
-      const updated = deck.map((c) =>
-        c.id === cardId ? { ...c, isRevealed: true } : c
+  // Revelar la carta seleccionada
+  const updatedDeck = deck.map((c) =>
+    c.id === cardId ? { ...c, isRevealed: true } : c
+  );
+  setDeck(updatedDeck);
+
+  const newSelection = [...selectedCards, card];
+  setSelectedCards(newSelection);
+
+  // 👇 Esperar hasta que haya 3 cartas seleccionadas
+  if (newSelection.length < 3) return;
+
+  // Bloquear el tablero momentáneamente
+  setPhase("locked");
+  setMoves((m) => m + 1);
+
+  const [first, second, third] = newSelection;
+
+  // ✅ Verificar si las 3 pertenecen al mismo verbo
+  const matched =
+    first.pairId === second.pairId && second.pairId === third.pairId;
+
+  setScore((prev) => calculateScore(prev, matched));
+
+  setTimeout(() => {
+    if (matched) {
+      const fixed = updatedDeck.map((c) =>
+        c.pairId === first.pairId
+          ? { ...c, isMatched: true }
+          : c
       );
-      setDeck(updated);
-      setSelectedCards([updated.find((c) => c.id === cardId)!]);
-      return;
+      setDeck(fixed);
+    } else {
+      const hidden = updatedDeck.map((c) =>
+        c.id === first.id || c.id === second.id || c.id === third.id
+          ? { ...c, isRevealed: false }
+          : c
+      );
+      setDeck(hidden);
     }
 
-    //  Caso 2: segunda carta seleccionada
-    if (selectedCards.length === 1) {
-      const first = selectedCards[0];
-      const second = deck.find((c) => c.id === cardId);
-      if (!second) return;
-
-      // revelamos la segunda carta y bloqueamos la interacción
-      const revealedDeck = deck.map((c) =>
-        c.id === cardId ? { ...c, isRevealed: true } : c
-      );
-      setDeck(revealedDeck);
-      setSelectedCards([first, { ...second, isRevealed: true }]);
-      setPhase("locked"); // bloqueamos mientras se evalúa el par
-      setMoves((m) => m + 1); // aumentamos contador de intentos
-
-      // comprobamos si hay coincidencia
-      const matched = isMatch(first, second);
-      setScore((prev) => calculateScore(prev, matched));
-
-      // Esperamos 650ms para que el jugador vea la carta
-      setTimeout(() => {
-        if (matched) {
-          //  si acierta, marcamos ambas como acertadas
-          const fixed = revealedDeck.map((c) =>
-            c.id === first.id || c.id === second.id
-              ? { ...c, isMatched: true }
-              : c
-          );
-          setDeck(fixed);
-        } else {
-          // ❌ si falla, las ocultamos de nuevo
-          const hidden = revealedDeck.map((c) =>
-            c.id === first.id || c.id === second.id
-              ? { ...c, isRevealed: false }
-              : c
-          );
-          setDeck(hidden);
-        }
-
-        // limpiamos selección y desbloqueamos
-        setSelectedCards([]);
-        setPhase("running");
-      }, 650);
-    }
-  }
+    // Reset selección y desbloquear
+    setSelectedCards([]);
+    setPhase("running");
+  }, 800);
+}
 
   // -----------------------------------------------------
   //  Reiniciar partida
