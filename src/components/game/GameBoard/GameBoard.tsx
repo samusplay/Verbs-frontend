@@ -4,6 +4,7 @@
 
 
 import Card from "./Card/Card";
+import DefeatModal from "./DefeatModal";
 import { useMatchGame } from "./GameBoard.hooks";
 import type { GameBoardProps } from "./GameBoard.types";
 
@@ -90,19 +91,8 @@ const { verbs:limit, maxMoves } =
           <span className="text-green-600 font-semibold"> ¡Completado!</span>
         )}
         {phase === "lost" && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-           <div className="bg-white p-6 rounded-2xl shadow-lg text-center animate-fade-in">
-              <h2 className="text-2xl font-bold text-red-600 mb-2">💀 ¡Has perdido!</h2>
-                 <p className="text-slate-600 mb-4">Se acabaron tus intentos.</p>
-                   <button
-                    onClick={resetGame}
-                     className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-                     >
-                     Reintentar
-                     </button>
-                    </div>
-        </div>
-)}
+          <DefeatModal onRetry={resetGame} />
+        )}
 
         
       </div>

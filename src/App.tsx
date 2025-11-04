@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import GameBoard from "./components/game/GameBoard/GameBoard";
+import StudyMode from "./components/game/Study/StudyMode";
 import type { Verb, GameDifficulty } from "./components/game/GameBoard/GameBoard.types"; //  tipo del verbo
 import GameLayout from "./layouts/GameLayout";
 import { getVerbs } from "./services/verbs.service"; //  tu servicio que llama al backend
@@ -11,6 +12,7 @@ function App() {
   const [error, setError] = useState<string | null>(null); // si algo falla
   const [selectedDifficulty, setSelectedDifficulty] = useState<GameDifficulty | null>(null);
   const [started, setStarted] = useState(false);
+  const [mode, setMode] = useState<"match" | "study">("match");
 
   // Efecto para traer los verbos desde el backend
   useEffect(() => {
@@ -27,7 +29,7 @@ function App() {
   }, []);
 
   return (
-    <GameLayout>
+    <GameLayout mode={mode} onSelectMode={(m) => setMode(m)}>
       {loading && (
         <div className="py-10 text-center text-slate-600 text-lg">
           Cargando verbos desde el servidor...
@@ -40,7 +42,8 @@ function App() {
         </div>
       )}
 
-      {!loading && !error && !started && (
+      {/* Pantalla de selección solo para modo Match */}
+      {!loading && !error && mode === "match" && !started && (
         <div className="py-12 flex flex-col items-center gap-6">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-slate-800">Selecciona la dificultad</h2>
@@ -127,8 +130,13 @@ function App() {
         </div>
       )}
 
-      {!loading && !error && started && selectedDifficulty && (
-        <GameBoard verbs={verbs} mode="match" difficulty={selectedDifficulty} />
+      {!loading && !error && mode === "match" && started && selectedDifficulty && (
+        <GameBoard verbs={verbs} difficulty={selectedDifficulty} />
+      )}
+
+      {/* Modo Study: muestra listado de verbos para repasar */}
+      {!loading && !error && mode === "study" && (
+        <StudyMode verbs={verbs} />
       )}
     </GameLayout>
   );

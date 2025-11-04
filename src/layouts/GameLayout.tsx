@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 //Marco de la aplicacion
 
 // Envolver el Juego, el Marco no maneja lógica, solo diseño
-export default function GameLayout({ children }: { children: ReactNode }) {
+export default function GameLayout({ children, mode = "match", onSelectMode }: { children: ReactNode; mode?: "match" | "study"; onSelectMode?: (m: "match" | "study") => void; }) {
   return (
     <div className="relative min-h-dvh flex flex-col bg-[radial-gradient(60%_60%_at_50%_0%,rgba(99,102,241,0.25),rgba(236,72,153,0.15)_50%,transparent_80%)]">
       {/* Overlay sutil para dar más profundidad */}
@@ -15,10 +15,16 @@ export default function GameLayout({ children }: { children: ReactNode }) {
             Verb Cards
           </h1>
           <nav className="flex gap-3 text-sm font-medium text-slate-700">
-            <button className="rounded-full bg-indigo-100 px-4 py-1.5 hover:bg-indigo-200 transition">
+            <button
+              onClick={() => onSelectMode && onSelectMode("study")}
+              className={`rounded-full px-4 py-1.5 transition ${mode === "study" ? "bg-indigo-600 text-white" : "bg-indigo-100 hover:bg-indigo-200"}`}
+            >
               Study
             </button>
-            <button className="rounded-full bg-pink-100 px-4 py-1.5 hover:bg-pink-200 transition">
+            <button
+              onClick={() => onSelectMode && onSelectMode("match")}
+              className={`rounded-full px-4 py-1.5 transition ${mode === "match" ? "bg-pink-600 text-white" : "bg-pink-100 hover:bg-pink-200"}`}
+            >
               Match
             </button>
           </nav>
