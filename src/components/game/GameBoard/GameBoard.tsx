@@ -3,8 +3,10 @@
 // 🧩 Tablero principal del juego de verbos
 
 
+import { useEffect } from "react";
 import Card from "./Card/Card";
 import DefeatModal from "./DefeatModal";
+import VictoryModal from "./VictoryModal";
 import { useMatchGame } from "./GameBoard.hooks";
 import type { GameBoardProps } from "./GameBoard.types";
 
@@ -34,6 +36,45 @@ const { verbs:limit, maxMoves } =
 
 
   const { deck, score, moves, phase, selectCard, resetGame } = useMatchGame(verbs,limit,maxMoves);
+
+  function saveGameResult(
+    scoreValue: number,
+    resultValue: "finished" | "lost",
+    difficultyValue: typeof difficulty
+  ) {
+    const newEntry = {
+      score: scoreValue,
+      result: resultValue,
+      difficulty: difficultyValue,
+      date: new Date().toISOString(),
+    };
+    const existingRaw = localStorage.getItem("gameHistory");
+    let existing: any[] = [];
+    try {
+      existing = existingRaw ? JSON.parse(existingRaw) : [];
+      if (!Array.isArray(existing)) existing = [];
+    } catch {
+      existing = [];
+    }
+    existing.push(newEntry);
+    localStorage.setItem("gameHistory", JSON.stringify(existing));
+  }
+
+  // Guardar resultado al finalizar (finished o lost)
+  useEffect(() => {
+    if (phase === "finished" || phase === "lost") {
+      const payload = {
+        score,
+        result: phase,
+        difficulty,
+        date: new Date().toISOString(),
+      };
+      // Almacenamos la última puntuación en localStorage
+      localStorage.setItem("lastGameResult", JSON.stringify(payload));
+      // Agregamos al historial local
+      saveGameResult(score, phase, difficulty);
+    }
+  }, [phase, score, difficulty]);
 
   // 📦 Si aún no hay cartas cargadas (por ejemplo, la API todavía responde)
   if (!deck || deck.length === 0) {
@@ -88,10 +129,10 @@ const { verbs:limit, maxMoves } =
         </button>
 
         {phase === "finished" && (
-          <span className="text-green-600 font-semibold"> ¡Completado!</span>
+          <VictoryModal score={score} onPlayAgain={resetGame} />
         )}
         {phase === "lost" && (
-          <DefeatModal onRetry={resetGame} />
+          <DefeatModal score={score} onRetry={resetGame} />
         )}
 
         
