@@ -17,19 +17,22 @@ import type { GameBoardProps } from "./GameBoard.types";
 export default function GameBoard({
   verbs,
   //luego podemos usar otro modo
-  mode = "match",
-  difficulty = "medium",
+  difficulty = "easy",
 }: GameBoardProps) {
-     // 🔹 mapa simple: ajusta a gusto
+     
+  // 🔹 Mapa de límites según la dificultad
   const limitByDifficulty = {
-    easy: 6,
-    medium: 10,
-    hard: 15,
+  easy: { verbs: 4, maxMoves: 12 },   // 4 verbos → 12 cartas, 12 intentos
+  medium: { verbs: 6, maxMoves: 8 },  // 6 verbos → 18 cartas, 8 intentos
+  hard: { verbs: 8, maxMoves: 6 },    // 8 verbos → 24 cartas, 6 intentos
   } as const;
 
-  const limit = limitByDifficulty[difficulty] ?? 10;
+// 🔹 Extraemos los valores según la dificultad actual
+const { verbs:limit, maxMoves } =
+  limitByDifficulty[difficulty] ?? limitByDifficulty.medium;
 
-  const { deck, score, moves, phase, selectCard, resetGame } = useMatchGame(verbs,limit);
+
+  const { deck, score, moves, phase, selectCard, resetGame } = useMatchGame(verbs,limit,maxMoves);
 
   // 📦 Si aún no hay cartas cargadas (por ejemplo, la API todavía responde)
   if (!deck || deck.length === 0) {
@@ -86,6 +89,22 @@ export default function GameBoard({
         {phase === "finished" && (
           <span className="text-green-600 font-semibold"> ¡Completado!</span>
         )}
+        {phase === "lost" && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+           <div className="bg-white p-6 rounded-2xl shadow-lg text-center animate-fade-in">
+              <h2 className="text-2xl font-bold text-red-600 mb-2">💀 ¡Has perdido!</h2>
+                 <p className="text-slate-600 mb-4">Se acabaron tus intentos.</p>
+                   <button
+                    onClick={resetGame}
+                     className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                     >
+                     Reintentar
+                     </button>
+                    </div>
+        </div>
+)}
+
+        
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ import type { Card, GamePhase, Verb } from "./GameBoard.types";
  * - Controla la selección de cartas y determina aciertos/fallos
  * - Detecta cuándo se termina la partida
  */
-export function useMatchGame(verbs: Verb[],limit = 10) {
+export function useMatchGame(verbs: Verb[],limit = 10, maxMoves = 10) {
   // -----------------------------
   // Estado principal del juego
   // -----------------------------
@@ -106,12 +106,19 @@ export function useMatchGame(verbs: Verb[],limit = 10) {
     setPhase("running");
   }, 800);
 }
+      // 🧠 Control de derrota por límite de intentos
+      //Toca Renderizar el componente
+   useEffect(() => {
+  if (moves >= maxMoves && phase === "running") {
+    setPhase("lost");
+  }
+  }, [moves, maxMoves, phase]);
 
   // -----------------------------------------------------
   //  Reiniciar partida
   // -----------------------------------------------------
   function resetGame() {
-    setDeck(buildDeck(verbs));  // reconstruimos el mazo
+    setDeck(buildDeck(verbs, limit));  // reconstruimos el mazo respetando el límite por dificultad
     setScore(0);
     setMoves(0);
     setSelectedCards([]);

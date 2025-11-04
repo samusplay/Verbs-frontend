@@ -27,7 +27,7 @@ export interface Card{
 //estado del juego
 export type GameMode = "match" | "study";
 export type GameDifficulty = "easy" | "medium" | "hard";
-export type GamePhase = "idle" | "running" | "locked" | "finished";
+export type GamePhase = "idle" | "running" | "locked" | "finished"| "lost";
 
 // Estado interno del juego
 
