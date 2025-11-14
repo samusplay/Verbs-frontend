@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 //Marco de la aplicacion
 
 // Envolver el Juego, el Marco no maneja lógica, solo diseño
-export default function GameLayout({ children, mode = "match", onSelectMode }: { children: ReactNode; mode?: "match" | "study"; onSelectMode?: (m: "match" | "study") => void; }) {
+export default function GameLayout({ children, mode = "match", onSelectMode, onRegister }: { children: ReactNode; mode?: "match" | "study"; onSelectMode?: (m: "match" | "study") => void; onRegister?: () => void; }) {
   return (
     <div className="relative min-h-dvh flex flex-col bg-[radial-gradient(60%_60%_at_50%_0%,rgba(99,102,241,0.25),rgba(236,72,153,0.15)_50%,transparent_80%)]">
       {/* Overlay sutil para dar más profundidad */}
@@ -20,6 +20,12 @@ export default function GameLayout({ children, mode = "match", onSelectMode }: {
               className={`rounded-full px-4 py-1.5 transition ${mode === "study" ? "bg-indigo-600 text-white" : "bg-indigo-100 hover:bg-indigo-200"}`}
             >
               Study
+            </button>
+            <button
+              onClick={() => onRegister && onRegister()}
+              className="rounded-full px-4 py-1.5 transition bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow hover:shadow-md hover:brightness-105 ring-1 ring-emerald-300/50"
+            >
+              Registrarse
             </button>
             <button
               onClick={() => onSelectMode && onSelectMode("match")}
@@ -45,3 +51,4 @@ export default function GameLayout({ children, mode = "match", onSelectMode }: {
     </div>
   );
 }
+
