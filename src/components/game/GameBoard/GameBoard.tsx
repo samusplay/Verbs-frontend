@@ -9,6 +9,7 @@ import DefeatModal from "./DefeatModal";
 import VictoryModal from "./VictoryModal";
 import { useMatchGame } from "./GameBoard.hooks";
 import type { GameBoardProps } from "./GameBoard.types";
+import useSound from "use-sound";
 
 /**
  * 🎮 Componente principal del tablero del juego
@@ -34,8 +35,22 @@ export default function GameBoard({
 const { verbs:limit, maxMoves } =
   limitByDifficulty[difficulty] ?? limitByDifficulty.medium;
 
+  // 🎵 Sonidos (coloca los mp3 en public/sounds/ con estos nombres)
+  const [playSelect] = useSound("/sounds/select.mp3", { volume: 0.5 });
+  const [playMatch] = useSound("/sounds/match.mp3", { volume: 0.6 });
+  const [playError] = useSound("/sounds/error.mp3", { volume: 0.5 });
+  const [playVictory] = useSound("/sounds/victory.mp3", { volume: 0.6 });
+  const [playDefeat] = useSound("/sounds/defeat.mp3", { volume: 0.6 });
 
-  const { deck, score, moves, phase, selectCard, resetGame } = useMatchGame(verbs,limit,maxMoves);
+  const { deck, score, moves, phase, selectCard, resetGame } = useMatchGame(verbs,limit,maxMoves,{
+    onSelect: () => playSelect?.(),
+    onMatch: () => playMatch?.(),
+    onMismatch: () => playError?.(),
+    onPhaseChange: (p) => {
+      if (p === "finished") playVictory?.();
+      if (p === "lost") playDefeat?.();
+    },
+  });
 
   function saveGameResult(
     scoreValue: number,

@@ -14,7 +14,17 @@ import type { Card, GamePhase, Verb } from "./GameBoard.types";
  * - Controla la selección de cartas y determina aciertos/fallos
  * - Detecta cuándo se termina la partida
  */
-export function useMatchGame(verbs: Verb[],limit = 10, maxMoves = 10) {
+export function useMatchGame(
+  verbs: Verb[],
+  limit = 10,
+  maxMoves = 10,
+  callbacks?: {
+    onSelect?: () => void;
+    onMatch?: () => void;
+    onMismatch?: () => void;
+    onPhaseChange?: (phase: GamePhase) => void;
+  }
+) {
   // -----------------------------
   // Estado principal del juego
   // -----------------------------
@@ -51,6 +61,12 @@ export function useMatchGame(verbs: Verb[],limit = 10, maxMoves = 10) {
     }
   }, [allMatched, phase]);
 
+  useEffect(() => {
+    if (callbacks?.onPhaseChange) {
+      callbacks.onPhaseChange(phase);
+    }
+  }, [phase, callbacks]);
+
   // -----------------------------------------------------
   //  Lógica de selección de cartas
   // -----------------------------------------------------
@@ -65,6 +81,8 @@ export function useMatchGame(verbs: Verb[],limit = 10, maxMoves = 10) {
     c.id === cardId ? { ...c, isRevealed: true } : c
   );
   setDeck(updatedDeck);
+
+  if (callbacks?.onSelect) callbacks.onSelect();
 
   const newSelection = [...selectedCards, card];
   setSelectedCards(newSelection);
@@ -86,6 +104,7 @@ export function useMatchGame(verbs: Verb[],limit = 10, maxMoves = 10) {
 
   setTimeout(() => {
     if (matched) {
+      if (callbacks?.onMatch) callbacks.onMatch();
       const fixed = updatedDeck.map((c) =>
         c.pairId === first.pairId
           ? { ...c, isMatched: true }
@@ -93,6 +112,7 @@ export function useMatchGame(verbs: Verb[],limit = 10, maxMoves = 10) {
       );
       setDeck(fixed);
     } else {
+      if (callbacks?.onMismatch) callbacks.onMismatch();
       const hidden = updatedDeck.map((c) =>
         c.id === first.id || c.id === second.id || c.id === third.id
           ? { ...c, isRevealed: false }
